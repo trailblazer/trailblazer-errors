@@ -7,7 +7,7 @@ module Trailblazer
     end
 
     def merge!(errors, backend:)
-      return merge_dry_result!(errors) if backend == :dry
+      return merge_dry_result!(errors) if backend.kind_of?(Dry::Validation::Contract)
       raise # TODO: test me.
     end
 
@@ -29,6 +29,11 @@ module Trailblazer
       errors.collect { |msg| msg.text }
     end
 
+    def add(name, messages)
+      errors = Array(messages).collect { |msg| Error.new(name, msg) }
+      merge_for!([[name, errors]])
+    end
+
   private
 
     # Add messages to their respective error "fields", append if already existing.
@@ -43,7 +48,7 @@ module Trailblazer
       self# TODO: test me.
     end
 
-    module Error
+    class Error < Struct.new(:name, :text)
       class Dry
         def self.Build(msg)
           return msg.path[0].to_sym, [Error::Dry.new(msg)]

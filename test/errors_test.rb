@@ -18,7 +18,7 @@ require "test_helper"
 class ErrorsTest < Minitest::Spec
   it "prototyping" do
     require "dry-validation"
-    Schema = Dry::Validation.Contract do
+    schema = Dry::Validation.Contract do
       params do
         required(:id).filled
         required(:type).value(type?: String)#.value(included_in?: %w(sale expense purchase receipt))
@@ -30,12 +30,12 @@ class ErrorsTest < Minitest::Spec
       end
     end
 
-    result = Schema.({type: "past"})
+    result = schema.({type: "past"})
     puts "@@@@@ #{result.errors.inspect}"
 
 # dry errors
     errors = Trailblazer::Errors.new
-    errors.merge!(result, backend: :dry)
+    errors.merge!(result, backend: schema)
 
     # symbol key returns list of error messages.
     assert_equal errors[:id].inspect, %{["is missing"]}
@@ -49,11 +49,16 @@ class ErrorsTest < Minitest::Spec
 # adding generic errors
     errors.add(:nonexistant, "Existence is futile")
     errors.add(:nonexistant, "What?")
+    errors.add(:nonexistant, ["and", "more!"])
 
-    assert_equal errors[:nonexistant].inspect, %{["Existence is futile", "What?"]}
+    assert_equal errors[:nonexistant].inspect, %{["Existence is futile", "What?", "and", "more!"]}
 
+    # we can add errors to "native" errors.
+    errors.add(:id, "and also not an Int!")
+    assert_equal errors[:id].inspect, %{["is missing", "and also not an Int!"]}
 
     # TODO: {errors.messages} etc
+    # TODO: Errors#add as in Rails, with "type" etc
   end
 
   def assert_equal(actual, expected)
