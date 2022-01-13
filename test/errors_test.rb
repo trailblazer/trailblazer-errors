@@ -57,6 +57,9 @@ class ErrorsTest < Minitest::Spec
     errors.add(:id, "and also not an Int!")
     assert_equal errors[:id].inspect, %{["is missing", "and also not an Int!"]}
 
+  # Errors#messages
+    assert_equal errors.messages.inspect, %{{:id=>[\"is missing\", \"and also not an Int!\"], :nonexistant=>[\"Existence is futile\", \"What?\", \"and\", \"more!\"], :type=>[\"must be in the future\", \"is in the past\"]}}
+
     # TODO: {errors.messages} etc
     # TODO: Errors#add as in Rails, with "type" etc
   end

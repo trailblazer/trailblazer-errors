@@ -11,16 +11,6 @@ module Trailblazer
       raise # TODO: test me.
     end
 
-    def merge_dry_result!(result)
-      # DISCUSS: keep result somewhere?
-
-      # result.errors.to_h
-      errors = result.errors.messages.collect do |msg|
-        Error::Dry.Build(msg)
-      end
-
-      merge_for!(errors)
-    end
 
     def [](name)
       name    = name.to_sym
@@ -31,7 +21,12 @@ module Trailblazer
 
     def add(name, messages)
       errors = Array(messages).collect { |msg| Error.new(name, msg) }
+
       merge_for!([[name, errors]])
+    end
+
+    def messages
+      @name2errors.sort.collect { |name, errors| [name, errors.collect { |err| err.text }] }.to_h
     end
 
   private
@@ -46,6 +41,17 @@ module Trailblazer
       end
 
       self# TODO: test me.
+    end
+
+    def merge_dry_result!(result)
+      # DISCUSS: keep result somewhere?
+
+      # result.errors.to_h
+      errors = result.errors.messages.collect do |msg|
+        Error::Dry.Build(msg)
+      end
+
+      merge_for!(errors)
     end
 
     class Error < Struct.new(:name, :text)
