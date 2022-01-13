@@ -21,22 +21,38 @@ class ErrorsTest < Minitest::Spec
     Schema = Dry::Validation.Contract do
       params do
         required(:id).filled
-        required(:title).filled
+        required(:type).value(type?: String)#.value(included_in?: %w(sale expense purchase receipt))
+      end
+
+      rule(:type) do
+        key.failure('must be in the future')
+        key.failure('is in the past')
       end
     end
 
-    result = Schema.({})
+    result = Schema.({type: "past"})
     puts "@@@@@ #{result.errors.inspect}"
 
 # dry errors
     errors = Trailblazer::Errors.new
     errors.merge!(result, backend: :dry)
 
-
-    assert_equal errors[:id].inspect, "["
-    assert_equal errors[:title].inspect, "["
+    # symbol key returns list of error messages.
+    assert_equal errors[:id].inspect, %{["is missing"]}
+    # string key works, too.
+    assert_equal errors["id"].inspect, %{["is missing"]}
+    # multiple error messages
+    assert_equal errors[:type].inspect, %{["must be in the future", "is in the past"]}
     # non-existant
-    assert_equal errors[:nonexistant].inspect, "["
+    assert_equal errors[:nonexistant], []
+
+# adding generic errors
+    errors.add(:nonexistant, "Existence is futile")
+    errors.add(:nonexistant, "What?")
+
+    assert_equal errors[:nonexistant].inspect, %{["Existence is futile", "What?"]}
+
+
     # TODO: {errors.messages} etc
   end
 
