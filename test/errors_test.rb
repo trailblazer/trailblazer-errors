@@ -31,11 +31,12 @@ class ErrorsTest < Minitest::Spec
     end
 
     result = schema.({type: "past"})
-    puts "@@@@@ #{result.errors.inspect}"
+    # puts "@@@@@ #{result.errors.inspect}"
 
 # dry errors
     errors = Trailblazer::Errors.new
-    errors.merge!(result, backend: schema)
+    # errors.merge_result!(result, backend: schema)
+    errors.merge_result!(result)
 
     # symbol key returns list of error messages.
     assert_equal errors[:id].inspect, %{["is missing"]}

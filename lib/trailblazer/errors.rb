@@ -6,8 +6,9 @@ module Trailblazer
       @name2errors = errors
     end
 
-    def merge!(errors, backend:)
-      return merge_dry_result!(errors) if backend.kind_of?(Dry::Validation::Contract)
+    def merge_result!(result, backend: nil)
+
+      return merge_dry_result!(result) if result.kind_of?(Dry::Validation::Result)
       raise # TODO: test me.
     end
 
