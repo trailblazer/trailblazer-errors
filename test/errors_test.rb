@@ -47,6 +47,9 @@ class ErrorsTest < Minitest::Spec
     # non-existant
     assert_equal errors[:nonexistant], []
 
+    # keeps reference to result under {"default"}
+    assert_equal errors.results["default"], result # the native DRY results?
+
 # adding generic errors
     errors.add(:nonexistant, "Existence is futile")
     errors.add(:nonexistant, "What?")

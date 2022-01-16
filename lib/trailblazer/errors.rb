@@ -4,9 +4,13 @@ module Trailblazer
   class Errors
     def initialize(errors={}) # name2errors
       @name2errors = errors
+      @results     = {}
     end
 
-    def merge_result!(result, backend: nil)
+    attr_reader :results
+
+    def merge_result!(result, backend: nil, path: "default")
+      @results[path] = result
 
       return merge_dry_result!(result) if result.kind_of?(Dry::Validation::Result)
       raise # TODO: test me.
